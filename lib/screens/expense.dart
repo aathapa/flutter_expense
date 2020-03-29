@@ -38,26 +38,40 @@ class Expense extends StatelessWidget {
     TransactionHandler transactionData =
         Provider.of<TransactionHandler>(context);
 
+    final appBar = AppBar(
+      title: Text(title),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () => {},
+        )
+      ],
+    );
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => {},
-          )
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Chart(
-            recentTransaction: _recentTransaction(transactionData),
-          ),
-          TransactionList(
-            transactionData: transactionData,
-          )
-        ],
+      appBar: appBar,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+              height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height -
+                      MediaQuery.of(context).padding.top) *
+                  0.3,
+              child: Chart(
+                recentTransaction: _recentTransaction(transactionData),
+              ),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height) *
+                  0.7,
+              child: TransactionList(
+                transactionData: transactionData,
+              ),
+            )
+          ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(

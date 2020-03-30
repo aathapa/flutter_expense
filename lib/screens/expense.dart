@@ -5,10 +5,17 @@ import 'package:expenses/widgets/add_transaction.dart';
 import 'package:expenses/widgets/chart.dart';
 import 'package:provider/provider.dart';
 
-class Expense extends StatelessWidget {
+class Expense extends StatefulWidget {
   Expense({this.title});
 
   final String title;
+
+  @override
+  _ExpenseState createState() => _ExpenseState();
+}
+
+class _ExpenseState extends State<Expense> {
+  bool _showChart = false;
 
   void addNewTransaction(BuildContext context, transactionData) {
     showModalBottomSheet(
@@ -33,13 +40,45 @@ class Expense extends StatelessWidget {
         .toList();
   }
 
+  Widget renderChart(appBar, _chartHeightPercentage, transactionData) {
+    return Column(
+      children: <Widget>[
+        Container(
+          height: (MediaQuery.of(context).size.height -
+                  appBar.preferredSize.height -
+                  MediaQuery.of(context).padding.top) *
+              _chartHeightPercentage,
+          child: Chart(
+            recentTransaction: _recentTransaction(transactionData),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget rendertransactionList(appBar, transactionData) {
+    return Container(
+      height:
+          (MediaQuery.of(context).size.height - appBar.preferredSize.height) *
+              0.7,
+      child: TransactionList(
+        transactionData: transactionData,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     TransactionHandler transactionData =
         Provider.of<TransactionHandler>(context);
 
+    bool _isLandScape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final double _chartHeightPercentage = _isLandScape ? 0.7 : 0.3;
+
     final appBar = AppBar(
-      title: Text(title),
+      title: Text(widget.title),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.add),
@@ -53,23 +92,27 @@ class Expense extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Container(
-              height: (MediaQuery.of(context).size.height -
-                      appBar.preferredSize.height -
-                      MediaQuery.of(context).padding.top) *
-                  0.3,
-              child: Chart(
-                recentTransaction: _recentTransaction(transactionData),
+            if (_isLandScape)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Show Chart',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  Switch(
+                    value: _showChart,
+                    onChanged: (val) => setState(() => _showChart = val),
+                  ),
+                ],
               ),
-            ),
-            Container(
-              height: (MediaQuery.of(context).size.height -
-                      appBar.preferredSize.height) *
-                  0.7,
-              child: TransactionList(
-                transactionData: transactionData,
-              ),
-            )
+            if (!_isLandScape)
+              renderChart(appBar, _chartHeightPercentage, transactionData),
+            if (!_isLandScape) rendertransactionList(appBar, transactionData),
+            if (_isLandScape)
+              _showChart
+                  ? renderChart(appBar, _chartHeightPercentage, transactionData)
+                  : rendertransactionList(appBar, transactionData),
           ],
         ),
       ),

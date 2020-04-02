@@ -1,6 +1,7 @@
 import 'package:expenses/models/transaction.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 import 'package:intl/intl.dart';
 
@@ -87,12 +88,12 @@ class _AddTransactionState extends State<AddTransaction> {
                 child: Row(
                   children: [
                     Expanded(child: Text(shownDate)),
-                    FlatButton(
+                    PlatformButton(
                       child: Text(
                         'Choose date',
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       onPressed: () => _onPressDateTimeButton(),

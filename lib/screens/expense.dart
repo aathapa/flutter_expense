@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:expenses/models/transaction.dart';
 import 'package:expenses/widgets/transaction_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expenses/widgets/add_transaction.dart';
 import 'package:expenses/widgets/chart.dart';
 import 'package:provider/provider.dart';
+
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class Expense extends StatefulWidget {
   Expense({this.title});
@@ -67,28 +72,10 @@ class _ExpenseState extends State<Expense> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    TransactionHandler transactionData =
-        Provider.of<TransactionHandler>(context);
-
-    bool _isLandScape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-
-    final double _chartHeightPercentage = _isLandScape ? 0.7 : 0.3;
-
-    final appBar = AppBar(
-      title: Text(widget.title),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () => {},
-        )
-      ],
-    );
-    return Scaffold(
-      appBar: appBar,
-      body: SingleChildScrollView(
+  Widget renderbody(
+      _isLandScape, appBar, _chartHeightPercentage, transactionData) {
+    return SafeArea(
+      child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -98,9 +85,9 @@ class _ExpenseState extends State<Expense> {
                 children: <Widget>[
                   Text(
                     'Show Chart',
-                    style: TextStyle(fontSize: 18),
+                    style: Theme.of(context).textTheme.title,
                   ),
-                  Switch(
+                  Switch.adaptive(
                     value: _showChart,
                     onChanged: (val) => setState(() => _showChart = val),
                   ),
@@ -116,11 +103,57 @@ class _ExpenseState extends State<Expense> {
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => addNewTransaction(context, transactionData),
-      ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    TransactionHandler transactionData =
+        Provider.of<TransactionHandler>(context);
+
+    bool _isLandScape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final double _chartHeightPercentage = _isLandScape ? 0.7 : 0.3;
+
+    final appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text(widget.title),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                GestureDetector(
+                  child: Icon(CupertinoIcons.add),
+                  onTap: () => addNewTransaction(context, transactionData),
+                )
+              ],
+            ),
+          )
+        : AppBar(
+            title: Text(widget.title),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () => {},
+              )
+            ],
+          );
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            navigationBar: appBar,
+            child: renderbody(
+                _isLandScape, appBar, _chartHeightPercentage, transactionData),
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: renderbody(
+                _isLandScape, appBar, _chartHeightPercentage, transactionData),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () => addNewTransaction(context, transactionData),
+            ),
+          );
   }
 }

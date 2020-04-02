@@ -43,10 +43,20 @@ class TransactionList extends StatelessWidget {
                   Jiffy(transaction.date).format('MMMM do yyyy'),
                   style: TextStyle(color: Colors.grey),
                 ),
-                trailing: GestureDetector(
-                  child: Icon(Icons.delete, color: Colors.red),
-                  onTap: () => transactionData.removeTransaction(index),
-                ),
+                trailing: MediaQuery.of(context).size.width > 460
+                    ? FlatButton.icon(
+                        icon: Icon(Icons.delete),
+                        label: Text('Delete'),
+                        textColor: Theme.of(context).errorColor,
+                        onPressed: () =>
+                            transactionData.removeTransaction(index),
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.delete),
+                        color: Theme.of(context).errorColor,
+                        onPressed: () =>
+                            transactionData.removeTransaction(index),
+                      ),
               ),
             ),
           );

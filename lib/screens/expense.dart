@@ -19,8 +19,28 @@ class Expense extends StatefulWidget {
   _ExpenseState createState() => _ExpenseState();
 }
 
-class _ExpenseState extends State<Expense> {
+class _ExpenseState extends State<Expense> with WidgetsBindingObserver {
   bool _showChart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    print(state);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    WidgetsBinding.instance.removeObserver(this);
+  }
 
   void addNewTransaction(BuildContext context, transactionData) {
     showModalBottomSheet(
